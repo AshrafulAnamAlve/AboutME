@@ -1,0 +1,369 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gold: #d4af37;
+    --gold-deep: #c89b3c;
+    --bronze: #a97142;
+    --gold-pale: #ebcb8b;
+    --gold-leaf: #f5e6b3;
+    --void: #0f0e0b;
+    --void-deep: #0a0907;
+    --stone: #16130f;
+    --stone-light: #201b14;
+    --parchment: #f7f3ea;
+    --ochre: #8c3a28;
+
+    /* Textures are generated, not downloaded — zero network cost. */
+    --tex-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)'/%3E%3C/svg%3E");
+
+    --tex-stone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.035' numOctaves='5' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23s)' opacity='0.55'/%3E%3C/svg%3E");
+
+    --tex-glyphs: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='190' height='190' viewBox='0 0 190 190'%3E%3Cg fill='none' stroke='%23d4af37' stroke-width='2'%3E%3Ccircle cx='30' cy='28' r='9'/%3E%3Cpath d='M30 37v22M21 46h18'/%3E%3Cpath d='M78 16v46M70 22l8-8 8 8'/%3E%3Cpath d='M118 20h26v14h-26zM131 34v26'/%3E%3Cpath d='M166 22c8 6 8 18 0 24-8-6-8-18 0-24z'/%3E%3Cpath d='M20 92h26M33 84v20'/%3E%3Cpath d='M68 86c10 0 18 6 18 12s-8 12-18 12'/%3E%3Ccircle cx='77' cy='98' r='3' fill='%23d4af37'/%3E%3Cpath d='M112 84v30M104 114h18'/%3E%3Cpath d='M152 86l14 14-14 14-14-14z'/%3E%3Cpath d='M24 140h22v26H24zM35 132v8'/%3E%3Cpath d='M70 146c8-8 20-8 28 0-8 8-20 8-28 0z'/%3E%3Ccircle cx='84' cy='146' r='3' fill='%23d4af37'/%3E%3Cpath d='M124 136v34M116 154h16'/%3E%3Cpath d='M156 138v30M148 138h16M148 168h16'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: auto; /* Lenis owns scrolling */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--void);
+    color: var(--parchment);
+    overflow-x: hidden;
+    font-family: var(--font-inter), var(--font-glyph), system-ui, sans-serif;
+  }
+
+  /* The tomb has no bright scrollbar */
+  ::-webkit-scrollbar {
+    width: 9px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--void-deep);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--bronze), var(--gold-deep));
+    border-radius: 9px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--gold);
+  }
+
+  ::selection {
+    background: rgba(212, 175, 55, 0.28);
+    color: var(--gold-leaf);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Respect people who get sick from motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* ── Type ─────────────────────────────────────────────── */
+  .font-display {
+    font-family: var(--font-cinzel), var(--font-glyph), serif;
+  }
+
+  .glyph-label {
+    @apply font-display text-[0.62rem] uppercase tracking-glyph text-gold/60 xs:text-[0.68rem];
+  }
+
+  .heading-xl {
+    @apply font-display font-semibold leading-[0.92] tracking-tight;
+    font-size: clamp(2.4rem, 8.5vw, 8rem);
+  }
+
+  .heading-lg {
+    @apply font-display font-semibold leading-[1.02] tracking-tight;
+    font-size: clamp(1.9rem, 5.2vw, 4.2rem);
+  }
+
+  .heading-md {
+    @apply font-display font-medium leading-[1.12];
+    font-size: clamp(1.35rem, 3vw, 2.4rem);
+  }
+
+  .body-lg {
+    @apply text-parchment/70 leading-relaxed;
+    font-size: clamp(0.98rem, 1.15vw, 1.16rem);
+  }
+
+  /* ── Gold surfaces ────────────────────────────────────── */
+  .text-gilded {
+    background: linear-gradient(
+      100deg,
+      #a97142 0%,
+      #d4af37 22%,
+      #f5e6b3 42%,
+      #d4af37 60%,
+      #c89b3c 78%,
+      #a97142 100%
+    );
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .text-gilded-live {
+    @apply text-gilded;
+    animation: shimmer 9s linear infinite;
+  }
+
+  .rule-gold {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(212, 175, 55, 0.5) 22%,
+      rgba(245, 230, 179, 0.85) 50%,
+      rgba(212, 175, 55, 0.5) 78%,
+      transparent
+    );
+  }
+
+  /* ── Stone & glass hybrid ─────────────────────────────── */
+  .stone-card {
+    position: relative;
+    background:
+      linear-gradient(160deg, rgba(44, 37, 27, 0.72) 0%, rgba(15, 14, 11, 0.85) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.14);
+    backdrop-filter: blur(14px) saturate(115%);
+    -webkit-backdrop-filter: blur(14px) saturate(115%);
+    box-shadow:
+      inset 0 1px 0 rgba(245, 230, 179, 0.07),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.55),
+      0 22px 60px -22px rgba(0, 0, 0, 0.9);
+  }
+
+  .stone-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    mix-blend-mode: overlay;
+    background-image: var(--tex-stone);
+    background-size: 220px;
+  }
+
+  .tablet {
+    position: relative;
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(58, 49, 38, 0.9), rgba(15, 14, 11, 0.96)),
+      linear-gradient(180deg, #241e16, #14110d);
+    border: 1px solid rgba(169, 113, 66, 0.3);
+    box-shadow:
+      inset 0 2px 0 rgba(245, 230, 179, 0.1),
+      inset 0 -3px 12px rgba(0, 0, 0, 0.8),
+      0 40px 90px -40px rgba(0, 0, 0, 1);
+  }
+
+  /* Chiselled edge on the tablet corners */
+  .tablet-notch::before,
+  .tablet-notch::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-color: rgba(212, 175, 55, 0.55);
+    border-style: solid;
+  }
+  .tablet-notch::before {
+    top: -1px;
+    left: -1px;
+    border-width: 1px 0 0 1px;
+  }
+  .tablet-notch::after {
+    bottom: -1px;
+    right: -1px;
+    border-width: 0 1px 1px 0;
+  }
+
+  /* ── Buttons ──────────────────────────────────────────── */
+  .btn-relic {
+    @apply relative inline-flex items-center justify-center gap-2.5 overflow-hidden font-display text-[0.68rem] uppercase tracking-rune transition-all duration-500;
+    padding: 0.95rem 1.9rem;
+    color: var(--gold-leaf);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.13), rgba(169, 113, 66, 0.05));
+  }
+
+  .btn-relic::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 40%, rgba(245, 230, 179, 0.28) 50%, transparent 60%);
+    transform: translateX(-120%);
+    transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .btn-relic:hover::before {
+    transform: translateX(120%);
+  }
+
+  .btn-relic:hover {
+    border-color: rgba(245, 230, 179, 0.8);
+    box-shadow:
+      0 0 26px -6px rgba(212, 175, 55, 0.55),
+      inset 0 0 20px -8px rgba(212, 175, 55, 0.6);
+    color: #fff;
+  }
+
+  /* The primary CTA carries to the bronze end but never falls into it —
+     ending on bronze read as muted olive against the dark hero. */
+  .btn-relic-solid {
+    background: linear-gradient(135deg, var(--gold-leaf) 0%, var(--gold) 42%, var(--gold-deep) 100%);
+    color: #14110d;
+    border-color: transparent;
+    font-weight: 600;
+  }
+
+  .btn-relic-solid:hover {
+    color: #0a0907;
+    box-shadow: 0 0 38px -6px rgba(212, 175, 55, 0.75);
+  }
+
+  /* ── Textures ─────────────────────────────────────────── */
+  .grain::before {
+    content: "";
+    position: fixed;
+    inset: -50%;
+    z-index: 90;
+    pointer-events: none;
+    opacity: 0.052;
+    background-image: var(--tex-grain);
+    animation: grain-shift 0.7s steps(3) infinite;
+  }
+
+  .vignette::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    pointer-events: none;
+    background: radial-gradient(
+      118% 88% at 50% 42%,
+      transparent 34%,
+      rgba(10, 9, 7, 0.44) 74%,
+      rgba(10, 9, 7, 0.9) 100%
+    );
+  }
+
+  /* The wall is meant to be *felt*, not read. A larger tile hides the repeat,
+     and it carries its own breathing animation — the generic `breathe` utility
+     drives opacity up to 0.42, which turned the tomb into wallpaper. */
+  .hieroglyph-wall {
+    background-image: var(--tex-glyphs);
+    background-size: 340px;
+    opacity: 0.03;
+    animation: wall-breathe 14s ease-in-out infinite;
+  }
+
+  /* ── Scroll-reveal primitives ─────────────────────────── */
+  .reveal-mask {
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 1.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-mask.is-open {
+    clip-path: inset(0 0 0% 0);
+  }
+}
+
+@layer utilities {
+  .glow-gold {
+    box-shadow: 0 0 46px -12px rgba(212, 175, 55, 0.6);
+  }
+  .glow-gold-sm {
+    box-shadow: 0 0 22px -8px rgba(212, 175, 55, 0.5);
+  }
+  .text-glow {
+    text-shadow: 0 0 24px rgba(212, 175, 55, 0.45);
+  }
+  .text-glow-strong {
+    text-shadow:
+      0 0 16px rgba(212, 175, 55, 0.7),
+      0 0 48px rgba(212, 175, 55, 0.35);
+  }
+  .perspective {
+    perspective: 1200px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  /* Ashraful's portrait, carved into the theme:
+     desaturated, gold-graded, lit from the torch side. */
+  .portrait-relic {
+    filter: sepia(0.4) saturate(1.15) contrast(1.08) brightness(1.06) hue-rotate(-8deg);
+    transition: filter 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .portrait-relic:hover {
+    filter: sepia(0.16) saturate(1.22) contrast(1.04) brightness(1.16) hue-rotate(-4deg);
+  }
+}
+
+@keyframes grain-shift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-3%, 2%);
+  }
+  40% {
+    transform: translate(2%, -3%);
+  }
+  60% {
+    transform: translate(-2%, -2%);
+  }
+  80% {
+    transform: translate(3%, 3%);
+  }
+}
+
+@keyframes wall-breathe {
+  0%,
+  100% {
+    opacity: 0.022;
+  }
+  50% {
+    opacity: 0.05;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
