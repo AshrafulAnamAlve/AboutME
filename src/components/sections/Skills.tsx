@@ -99,7 +99,7 @@ export default function Skills() {
       />
 
       <SectionHeading
-        glyph="𓋹"
+        glyph="𓏛"
         eyebrow="Chamber II"
         title="The Relic Vault"
         intro="Every instrument in this vault has been used to raise something real. Hover to read the inscription."

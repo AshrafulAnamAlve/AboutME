@@ -156,7 +156,7 @@ export default function Footer() {
           </p>
 
           <div className="flex items-center gap-2 text-gold/30">
-            {["𓂀", "𓋹", "𓊹", "𓆓", "𓈖"].map((g, i) => (
+            {["𓉴", "𓏛", "𓈖", "𓆓", "𓇋"].map((g, i) => (
               <span
                 key={i}
                 className="animate-breathe font-display text-xs"

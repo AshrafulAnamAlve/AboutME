@@ -37,7 +37,7 @@ export default function About() {
             {/* chiselled top band */}
             <div className="mb-8 flex items-center justify-between border-b border-gold/15 pb-5">
               <div className="flex gap-2.5 text-gold/50">
-                {["𓂀", "𓋹", "𓊹", "𓆓", "𓈖"].map((g, i) => (
+                {["𓉴", "𓏛", "𓈖", "𓆓", "𓇋"].map((g, i) => (
                   <span
                     key={i}
                     className="animate-breathe font-display text-base sm:text-lg"
@@ -133,7 +133,7 @@ export default function About() {
               />
               <div className="relative">
                 <div className="animate-breathe text-glow mb-3 font-display text-3xl text-gold">
-                  𓋹
+                  𓄤
                 </div>
                 <p className="font-serif text-base italic text-gold-pale/90">
                   {identity.availability}

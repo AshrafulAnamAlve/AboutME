@@ -121,7 +121,7 @@ export default function Journey() {
   const drawn = useSpring(scrollYProgress, { stiffness: 60, damping: 22, restDelta: 0.001 });
   const compassRotate = useTransform(scrollYProgress, [0, 1], [0, 540]);
 
-  const glyphs = ["𓉔", "𓂀", "𓋴", "𓈖", "𓆓"];
+  const glyphs = ["𓉔", "𓉴", "𓋴", "𓈖", "𓆓"];
 
   return (
     <Section id="journey" className="overflow-hidden">
@@ -208,7 +208,7 @@ export default function Journey() {
           {atlas.map((a, i) => (
             <Waypoint
               key={a.degree}
-              glyph={a.status === "current" ? "𓋹" : "𓎛"}
+              glyph={a.status === "current" ? "𓇋" : "𓎛"}
               era={a.period}
               title={a.degree}
               place={a.institute}

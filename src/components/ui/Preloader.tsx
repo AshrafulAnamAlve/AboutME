@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useAudio } from "@/components/providers/AudioProvider";
 import { DustField } from "./Atmosphere";
 
-const GLYPH_RING = ["𓂀", "𓋹", "𓊹", "𓆓", "𓈖", "𓉔", "𓄤", "𓏏", "𓅓", "𓎛", "𓋴", "𓃀"];
+const GLYPH_RING = ["𓉴", "𓏛", "𓈖", "𓆓", "𓇋", "𓉔", "𓄤", "𓏏", "𓅓", "𓎛", "𓋴", "𓃀"];
 
 const OMENS = [
   "Brushing sand from the seal…",
@@ -163,7 +163,7 @@ export default function Preloader({ onEnter }: { onEnter: () => void }) {
                   }}
                   transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  𓂀
+                  𓉴
                 </motion.span>
               </div>
 

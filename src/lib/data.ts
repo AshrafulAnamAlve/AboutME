@@ -37,11 +37,11 @@ export const socials = [
 export const navLinks = [
   { label: "Threshold", href: "#hero", glyph: "𓉔" },
   { label: "The Tablet", href: "#about", glyph: "𓊪" },
-  { label: "Relics", href: "#skills", glyph: "𓋹" },
-  { label: "Treasures", href: "#projects", glyph: "𓂀" },
+  { label: "Relics", href: "#skills", glyph: "𓎛" },
+  { label: "Treasures", href: "#projects", glyph: "𓉐" },
   { label: "The Route", href: "#journey", glyph: "𓈖" },
   { label: "Seals", href: "#certificates", glyph: "𓆓" },
-  { label: "Summon", href: "#contact", glyph: "𓁹" },
+  { label: "Summon", href: "#contact", glyph: "𓅓" },
 ] as const;
 
 export const stats = [
@@ -80,26 +80,26 @@ export type Relic = {
 };
 
 export const relics: Relic[] = [
-  { name: "C#", glyph: "𓊹", mastery: 88, tier: "core", note: "Primary tongue. OOP, business logic, backend systems." },
+  { name: "C#", glyph: "𓉴", mastery: 88, tier: "core", note: "Primary tongue. OOP, business logic, backend systems." },
   { name: "ASP.NET Core", glyph: "𓉐", mastery: 85, tier: "core", note: "Enterprise backends, middleware, dependency injection." },
   { name: "Web API", glyph: "𓈗", mastery: 84, tier: "core", note: "RESTful services, JWT auth, secure endpoints." },
-  { name: "Angular", glyph: "𓂀", mastery: 82, tier: "core", note: "SPA architecture, reactive forms, routing, services." },
+  { name: "Angular", glyph: "𓊃", mastery: 82, tier: "core", note: "SPA architecture, reactive forms, routing, services." },
   { name: "SQL Server", glyph: "𓎛", mastery: 80, tier: "core", note: "Schema design, queries, data integrity." },
   { name: "ASP.NET MVC", glyph: "𓋴", mastery: 78, tier: "forged", note: "Razor views, controllers, classic server rendering." },
   { name: "TypeScript", glyph: "𓄤", mastery: 78, tier: "forged", note: "Typed frontend logic across Angular systems." },
   { name: "MySQL", glyph: "𓆑", mastery: 76, tier: "forged", note: "Relational modelling for desktop and web apps." },
   { name: "JavaScript", glyph: "𓃀", mastery: 76, tier: "forged", note: "DOM, async flows, browser behaviour." },
-  { name: "Java", glyph: "𓊃", mastery: 70, tier: "forged", note: "OOP foundations, Swing desktop applications." },
+  { name: "Java", glyph: "𓇋", mastery: 70, tier: "forged", note: "OOP foundations, Swing desktop applications." },
   { name: "HTML & CSS", glyph: "𓅓", mastery: 84, tier: "forged", note: "Responsive layouts, modern standards, semantics." },
   { name: "Bootstrap", glyph: "𓏏", mastery: 78, tier: "tooled", note: "Rapid responsive scaffolding." },
   { name: "Git & GitHub", glyph: "𓎼", mastery: 76, tier: "tooled", note: "Version control, branching, collaboration." },
-  { name: "JWT Auth", glyph: "𓋹", mastery: 78, tier: "tooled", note: "Token-based authentication and role guards." },
+  { name: "JWT Auth", glyph: "𓆓", mastery: 78, tier: "tooled", note: "Token-based authentication and role guards." },
   { name: "SMTP Mail", glyph: "𓁷", mastery: 74, tier: "tooled", note: "Transactional email inside application flows." },
-  { name: "Visual Studio", glyph: "𓊖", mastery: 82, tier: "tooled", note: "Primary forge for .NET work." },
+  { name: "Visual Studio", glyph: "𓏛", mastery: 82, tier: "tooled", note: "Primary forge for .NET work." },
 ];
 
 export const relicTiers = {
-  core: { label: "Sacred Relics", desc: "The instruments I reach for first" },
+  core: { label: "Prime Relics", desc: "The instruments I reach for first" },
   forged: { label: "Forged Tools", desc: "Proven in the field" },
   tooled: { label: "Expedition Kit", desc: "Carried on every dig" },
 } as const;
@@ -255,7 +255,7 @@ export const scrolls = [
     title: "ASP.NET Full Stack Development",
     issuer: "ISDB-BISEW IT Scholarship Programme",
     period: "6-Month Professional Training",
-    seal: "𓋹",
+    seal: "𓎛",
     detail:
       "Completed the full professional curriculum in C#, ASP.NET MVC, ASP.NET Core, Web API, SQL Server and Angular — covering backend and frontend integration, API development and database connectivity.",
   },
@@ -263,7 +263,7 @@ export const scrolls = [
     title: "Diploma in Engineering — Computer Technology",
     issuer: "Barguna Polytechnic Institute",
     period: "2022 · CGPA 3.54 / 4.00",
-    seal: "𓊹",
+    seal: "𓏏",
     detail:
       "Four-year engineering diploma in computer technology, covering programming fundamentals, systems and applied computing.",
   },
@@ -272,7 +272,7 @@ export const scrolls = [
 /* ── Achievements ─────────────────────────────────────────── */
 export const achievements = [
   {
-    glyph: "𓆃",
+    glyph: "𓄤",
     title: "IsDB-BISEW Scholarship",
     detail: "Selected for the competitive IT Scholarship Programme and completed the full ASP.NET track.",
   },
@@ -282,7 +282,7 @@ export const achievements = [
     detail: "eLibrary, Employee Portal and Lost & Found — each carried from empty repository to working application.",
   },
   {
-    glyph: "𓂀",
+    glyph: "𓉴",
     title: "Diploma with Distinction",
     detail: "CGPA 3.54 / 4.00 in Computer Technology at Barguna Polytechnic Institute.",
   },

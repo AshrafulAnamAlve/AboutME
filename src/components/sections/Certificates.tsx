@@ -143,7 +143,7 @@ export default function Certificates() {
 
       {/* ── Achievements ── */}
       <SectionHeading
-        glyph="𓆃"
+        glyph="𓄤"
         eyebrow="The Offerings"
         title="Marks of the Expedition"
         className="mb-14"

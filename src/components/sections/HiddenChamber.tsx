@@ -80,7 +80,7 @@ export default function HiddenChamber() {
               transition={{ duration: 60, ease: "linear", repeat: Infinity }}
               className="absolute -inset-12 rounded-full border border-gold/20 sm:-inset-16"
             >
-              {["𓂀", "𓋹", "𓊹", "𓆓", "𓈖", "𓉔"].map((g, i) => {
+              {["𓉴", "𓏛", "𓈖", "𓆓", "𓇋", "𓉔"].map((g, i) => {
                 const angle = (i / 6) * Math.PI * 2;
                 const r = 104;
                 return (
@@ -125,7 +125,7 @@ export default function HiddenChamber() {
               }}
             >
               <span className="text-glow-strong font-display text-6xl text-gold sm:text-7xl">
-                𓂀
+                𓉴
               </span>
             </motion.div>
           </div>

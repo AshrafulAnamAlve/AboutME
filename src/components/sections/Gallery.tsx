@@ -13,9 +13,9 @@ import { useIsMobile, useReducedMotion } from "@/hooks/useMediaQuery";
 const panels = [
   { kind: "glyph" as const, glyph: "𓉔", caption: "The Threshold" },
   { kind: "image" as const, src: treasures[0].image, caption: treasures[0].name, sub: treasures[0].epithet },
-  { kind: "glyph" as const, glyph: "𓂀", caption: "The Watching Eye" },
+  { kind: "glyph" as const, glyph: "𓉴", caption: "The Great Pyramid" },
   { kind: "image" as const, src: treasures[1].image, caption: treasures[1].name, sub: treasures[1].epithet },
-  { kind: "glyph" as const, glyph: "𓋹", caption: "The Breath of Life" },
+  { kind: "glyph" as const, glyph: "𓏛", caption: "The Written Word" },
   { kind: "image" as const, src: treasures[2].image, caption: treasures[2].name, sub: treasures[2].epithet },
   { kind: "glyph" as const, glyph: "𓆓", caption: "The Sealed Word" },
 ];

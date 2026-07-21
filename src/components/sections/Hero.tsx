@@ -245,7 +245,7 @@ export default function Hero({ started }: { started: boolean }) {
 
             {/* Glyph columns flanking the portrait */}
             <div className="pointer-events-none absolute -left-7 top-8 hidden flex-col gap-4 text-gold/30 lg:flex">
-              {["𓂀", "𓋹", "𓊹", "𓆓"].map((g, i) => (
+              {["𓉴", "𓏛", "𓈖", "𓆓"].map((g, i) => (
                 <span
                   key={i}
                   className="animate-breathe font-display text-lg"

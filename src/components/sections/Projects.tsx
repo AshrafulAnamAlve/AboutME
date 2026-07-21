@@ -253,7 +253,7 @@ export default function Projects() {
       />
 
       <SectionHeading
-        glyph="𓂀"
+        glyph="𓉐"
         eyebrow="Chamber III"
         title="The Treasury"
         intro="Three structures raised from nothing. Each one still standing."

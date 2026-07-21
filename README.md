@@ -66,6 +66,18 @@ the track fades in over ~3 seconds from there. The preference is remembered in
 `localStorage`, the track pauses when the tab is hidden, and the nav toggle mutes
 it. This is the standard solution, not a workaround.
 
+**No religious symbols are used anywhere.** The first build leaned on the Eye of
+Horus (𓂀), the ankh (𓋹) and *netjer* (𓊹, the sign meaning "god") — all
+ancient Egyptian religious iconography, and the single eye in particular carries
+associations many Muslims object to. Every one has been removed. The glyphs now
+in use are ordinary hieroglyphs: phonetic letters, tools, water, reeds, buildings
+and the pyramid sign (𓉴). The atmosphere is unchanged — pyramids, obelisks,
+torches, scrolls, stone and gold were always doing that work.
+
+If you add glyphs later, stick to mundane signs. Avoid the eye (𓂀 𓁹), the ankh
+(𓋹), *netjer* (𓊹), the scarab (𓆣) and the feather of Ma'at (𓆄) — all are
+sacred symbols rather than decorative ones.
+
 **Your referees are not on the site.** Your CV lists two people with their phone
 numbers and personal emails. Publishing another person's contact details without
 their consent exposes them to spam and worse, so I left them out. Share

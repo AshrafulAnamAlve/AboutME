@@ -56,7 +56,7 @@ export default function Contact() {
       />
 
       <SectionHeading
-        glyph="𓁹"
+        glyph="𓅓"
         eyebrow="The Final Chamber"
         title="Enter the Temple"
         intro="The door is open. Say what brought you here."
