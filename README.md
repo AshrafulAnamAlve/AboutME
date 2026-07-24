@@ -50,6 +50,44 @@ These are marked `TODO` in `src/lib/data.ts`:
 
 ---
 
+## The intro sequence
+
+The site opens on a six-scene ritual before the portfolio itself. Nothing below
+the intro was changed — every existing section renders exactly as before.
+
+1. **The sealed door** (`intro/SealedDoor.tsx`) — carved stone, hieroglyph
+   columns, torches, fog, drifting dust, and a glowing seal. The page is frozen
+   here.
+2. **The break** — the seal fractures, golden light bursts out, sparks and
+   stone fall, a synthesised rumble plays, and two leaves swing outward. The
+   leaves stay mounted for the whole swing so the map is revealed through the
+   widening gap.
+3. **The chart** (`lib/parchment.ts`) — an antique world map drawn onto a
+   canvas at runtime: real coastlines, ocean labels, compass rose, ships, sea
+   serpents, rhumb lines, fold creases, burnt edges and a rope border.
+4. **The descent** (`intro/JourneyScene.tsx`) — scroll drives a camera push
+   *into* the parchment. Not a CSS zoom; a real perspective camera over ~620vh
+   of runway.
+5. **The desert** — the parchment dissolves, a dusk sky and dunes resolve, fog
+   thickens, dust travels with the camera.
+6. **The pyramid** — rises out of the sand, turns roughly 26° left-to-right
+   across the whole reveal (never a continuous spin), and the camera closes on
+   it before handing over to the homepage.
+
+Afterwards a pyramid **watermark** (`ui/PyramidWatermark.tsx`) stays at ~7%
+opacity for the rest of the session, drifting a few pixels with the cursor.
+
+**Tuning it:** `TRACK_VH` in `intro/IntroExperience.tsx` sets how much scroll
+the journey takes. The scene beats live in one place — the band comments at the
+top of `JourneyScene.tsx` map progress 0→1 onto each scene.
+
+**Sound** is synthesised in `lib/audio-fx.ts` (rumble, crack, dust) — no audio
+files beyond your music track.
+
+**Reduced motion** skips scenes 2–6 entirely and goes straight from the door to
+the homepage. A scroll-driven camera push is exactly what triggers vestibular
+symptoms, so it is not offered as an option there.
+
 ## Decisions worth knowing about
 
 **Skills are your real stack, not an aspirational one.** Your prompt asked for

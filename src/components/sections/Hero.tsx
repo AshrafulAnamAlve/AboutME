@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Download, Mail, ChevronDown, MapPin } from "lucide-react";
 import { identity, stats } from "@/lib/data";
 import { MagneticButton } from "@/components/ui/Primitives";
@@ -46,7 +46,11 @@ export default function Hero({ started }: { started: boolean }) {
   return (
     <section
       id="hero"
-      className="relative flex min-h-[100svh] w-full items-center overflow-hidden"
+      /* `clip` not `hidden`: an overflow-hidden box is a scroll container, and
+         Chromium refuses to chain wheel scrolling out of one. With Lenis
+         absent (reduced motion) that left the page completely unscrollable.
+         `clip` clips identically without creating a scroll container. */
+      className="relative flex min-h-[100svh] w-full items-center overflow-clip"
     >
       {/* ── Layers of the world ── */}
       <div className="absolute inset-0 bg-gradient-to-b from-void-900 via-void-800 to-void-700" />
@@ -100,19 +104,25 @@ export default function Hero({ started }: { started: boolean }) {
           </motion.h1>
 
           {/* Rotating titles */}
-          <motion.div {...reveal(0.5)} className="mb-6 h-9 overflow-hidden sm:h-11">
-            {identity.titles.map((t) => (
-              <motion.div
-                key={t}
-                className="flex h-9 items-center gap-3 sm:h-11"
-                animate={{ y: `-${titleIndex * 100}%` }}
-                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          {/* One title at a time, absolutely placed.
+              The previous version stacked all four and slid them behind a
+              clipped 44px window — which made this a scrollable box, and
+              Chromium refuses to chain wheel scrolling out of one. It froze
+              the entire page for anyone scrolling with the cursor here and
+              no Lenis (i.e. reduced motion). No overflow, no trap. */}
+          <motion.div {...reveal(0.5)} className="relative mb-6 h-9 sm:h-11">
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={identity.titles[titleIndex]}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0 flex items-center font-display text-base uppercase tracking-rune text-gold-pale sm:text-xl"
               >
-                <span className="font-display text-base uppercase tracking-rune text-gold-pale sm:text-xl">
-                  {t}
-                </span>
-              </motion.div>
-            ))}
+                {identity.titles[titleIndex]}
+              </motion.span>
+            </AnimatePresence>
           </motion.div>
 
           <motion.p {...reveal(0.6)} className="body-lg mb-7 max-w-xl">

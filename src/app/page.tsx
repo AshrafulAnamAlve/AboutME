@@ -5,8 +5,9 @@ import dynamic from "next/dynamic";
 
 import AudioProvider from "@/components/providers/AudioProvider";
 import SmoothScroll from "@/components/providers/SmoothScroll";
-import Preloader from "@/components/ui/Preloader";
+import IntroExperience from "@/components/intro/IntroExperience";
 import Navigation from "@/components/ui/Navigation";
+import PyramidWatermark from "@/components/ui/PyramidWatermark";
 import { TorchCursor } from "@/components/ui/Atmosphere";
 import Hero from "@/components/sections/Hero";
 
@@ -22,27 +23,36 @@ const HiddenChamber = dynamic(() => import("@/components/sections/HiddenChamber"
 const Footer = dynamic(() => import("@/components/sections/Footer"));
 
 export default function Page() {
-  const [entered, setEntered] = useState(false);
+  const [arrived, setArrived] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
+  const focused = useRef(false);
 
   /**
-   * The seal button unmounts with the preloader, which leaves keyboard focus
-   * orphaned on <body>. Hand it to the content so tabbing continues sensibly.
+   * Called as the intro hands over. Focus moves into the content once, so the
+   * keyboard tab order continues sensibly after the overlay disappears.
    */
-  const handleEnter = useCallback(() => {
-    setEntered(true);
-    requestAnimationFrame(() => mainRef.current?.focus({ preventScroll: true }));
+  const handleArrive = useCallback((isArrived: boolean) => {
+    setArrived(isArrived);
+    if (isArrived && !focused.current) {
+      focused.current = true;
+      requestAnimationFrame(() => mainRef.current?.focus({ preventScroll: true }));
+    }
   }, []);
 
   return (
     <AudioProvider>
       <SmoothScroll>
-        <Preloader onEnter={handleEnter} />
+        {/* Scenes 1–6. Renders its own scroll runway above <main>. */}
+        <IntroExperience onArrive={handleArrive} />
+
         <TorchCursor />
-        <Navigation visible={entered} />
+        <Navigation visible={arrived} />
+
+        {/* What the pyramid leaves behind, for the rest of the session */}
+        <PyramidWatermark active={arrived} />
 
         <main ref={mainRef} tabIndex={-1} className="outline-none">
-          <Hero started={entered} />
+          <Hero started={arrived} />
           <About />
           <Skills />
           <Projects />

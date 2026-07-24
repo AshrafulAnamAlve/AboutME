@@ -33,12 +33,25 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+
+    /**
+     * No overflow guard here, deliberately.
+     *
+     * Any non-visible horizontal overflow on the root (`hidden`, or `clip`,
+     * which computes to `hidden` once the vertical axis scrolls) propagates to
+     * the viewport and leaves it non-user-scrollable in Chromium. The page
+     * could then only be moved programmatically — fine under Lenis, but
+     * completely frozen for anyone with reduced motion, who gets no Lenis.
+     *
+     * Horizontal overflow is verified absent at 390 / 820 / 1440px instead.
+     * If it ever reappears, fix the offending element rather than masking it
+     * here, or the whole page stops scrolling again.
+     */
   }
 
   body {
     background-color: var(--void);
     color: var(--parchment);
-    overflow-x: hidden;
     font-family: var(--font-inter), var(--font-glyph), system-ui, sans-serif;
   }
 
@@ -66,6 +79,20 @@
     outline: 2px solid var(--gold);
     outline-offset: 3px;
     border-radius: 2px;
+  }
+
+  /**
+   * Scroll freeze while the tomb door is still sealed.
+   * Applied as a class rather than inline styles because the mobile-menu
+   * effect in Navigation also writes to `body.style.overflow` and was
+   * clearing the lock the moment it mounted. `!important` keeps this
+   * authoritative regardless of what else touches the element.
+   */
+  html.tomb-locked,
+  html.tomb-locked body {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+    touch-action: none;
   }
 
   /* Respect people who get sick from motion */
@@ -346,6 +373,17 @@
   }
   80% {
     transform: translate(3%, 3%);
+  }
+}
+
+@keyframes cta-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
