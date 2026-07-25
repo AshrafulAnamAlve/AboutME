@@ -6,8 +6,9 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 /**
- * Lenis drives the scroll; GSAP ScrollTrigger listens to it.
- * Both are disabled entirely under prefers-reduced-motion.
+ * Lenis drives the scroll; GSAP ScrollTrigger listens to it. Lenis is skipped
+ * entirely under prefers-reduced-motion and on touch/coarse-pointer devices —
+ * in both cases the browser scrolls natively and ScrollTrigger tracks that.
  */
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -22,13 +23,22 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
      */
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+    /**
+     * Touch devices scroll natively — `syncTouch` is off, so Lenis smooths
+     * nothing here; it only adds a RAF loop and can fight the platform's own
+     * momentum scrolling, which is exactly what made mobile feel janky. Let the
+     * browser own touch scrolling: it's smoother, lighter, and ScrollTrigger
+     * drives the intro off native scroll events all the same.
+     */
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+
     // The intro must always begin at the sealed door — browsers otherwise
     // restore the previous scroll position on reload and drop the visitor
     // halfway through the journey.
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
 
-    if (reduced) {
+    if (reduced || coarse) {
       ScrollTrigger.refresh();
       return;
     }
