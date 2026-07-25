@@ -233,24 +233,45 @@ export function makePyramidStoneTextures(): {
  * large ground plane so the floor reads as real, weathered sand rather than a
  * flat coloured sheet — exactly as the source HTML builds its terrain.
  */
-export function makeDesertSandTextures(repeat = 96): {
+export function makeDesertSandTextures(repeat = 40): {
   map: THREE.CanvasTexture;
   bump: THREE.CanvasTexture;
 } {
   const size = 256;
+  const rand = seeded(5231);
 
-  // colour: flat sand, then per-pixel grain
+  // colour: pale, warm moonlit sand. Kept genuinely light so that under the
+  // cool, dim night it still reads as lit ground rather than a dark plate — the
+  // design file's darker tone crushes to near-black once the scene is scaled up
+  // and lit this way. Broad tonal patches give the surface visible form.
   const c = document.createElement("canvas");
   c.width = c.height = size;
   const ctx = c.getContext("2d")!;
-  ctx.fillStyle = "#6e6350";
+  ctx.fillStyle = "#a3926c";
   ctx.fillRect(0, 0, size, size);
+
+  // large, soft drifts of lighter/darker sand so the floor isn't a flat sheet
+  for (let i = 0; i < 34; i++) {
+    const x = rand() * size;
+    const y = rand() * size;
+    const r = size * (0.08 + rand() * 0.3);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    const warm = rand() > 0.5;
+    g.addColorStop(0, warm ? "rgba(198,180,138,0.5)" : "rgba(120,104,74,0.5)");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // per-pixel grain
   const img = ctx.getImageData(0, 0, size, size);
   for (let i = 0; i < img.data.length; i += 4) {
-    const n = (Math.random() - 0.5) * 18;
+    const n = (Math.random() - 0.5) * 20;
     img.data[i] += n;
-    img.data[i + 1] += n * 0.88;
-    img.data[i + 2] += n * 0.65;
+    img.data[i + 1] += n * 0.9;
+    img.data[i + 2] += n * 0.7;
   }
   ctx.putImageData(img, 0, 0);
 
@@ -260,10 +281,10 @@ export function makeDesertSandTextures(repeat = 96): {
   const bctx = b.getContext("2d")!;
   bctx.fillStyle = "#808080";
   bctx.fillRect(0, 0, size, size);
-  for (let y = 0; y < size; y += 5) {
-    const t = 128 + Math.sin(y * 0.4) * 34;
+  for (let y = 0; y < size; y += 6) {
+    const t = 128 + Math.sin(y * 0.35) * 26;
     bctx.fillStyle = "rgb(" + Math.round(t) + "," + Math.round(t) + "," + Math.round(t) + ")";
-    bctx.fillRect(0, y, size, 2.5);
+    bctx.fillRect(0, y, size, 3);
   }
 
   const map = new THREE.CanvasTexture(c);

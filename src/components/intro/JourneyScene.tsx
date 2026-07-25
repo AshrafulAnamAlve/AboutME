@@ -114,7 +114,11 @@ function Sky({ progressRef }: { progressRef: React.MutableRefObject<number> }) {
   });
 
   return (
-    <mesh scale={[-1, 1, 1]}>
+    // renderOrder −1: the sky dome is the background and must be painted first.
+    // Its centre sorts nearer the camera than the far-hung moon, so without this
+    // the transparent pass draws the (depth-write-free) moon first and then the
+    // sky over the top of it — hiding the moon entirely.
+    <mesh scale={[-1, 1, 1]} renderOrder={-1}>
       <sphereGeometry args={[300, 24, 16]} />
       <meshBasicMaterial
         ref={mat}
@@ -140,26 +144,35 @@ function Moon({ progressRef }: { progressRef: React.MutableRefObject<number> }) 
     const c = document.createElement("canvas");
     c.width = c.height = 128;
     const m = c.getContext("2d")!;
-    m.fillStyle = "#dce6f8";
-    m.beginPath();
-    m.arc(64, 64, 32, 0, Math.PI * 2);
-    m.fill();
-    m.globalCompositeOperation = "destination-out";
-    m.beginPath();
-    m.arc(46, 58, 30, 0, Math.PI * 2);
-    m.fill();
-    // halo painted behind so the carve doesn't punch through it
-    m.globalCompositeOperation = "destination-over";
-    const halo = m.createRadialGradient(72, 66, 18, 72, 66, 60);
-    halo.addColorStop(0, "rgba(190,205,235,0.3)");
+    // Soft halo glow behind the disc
+    const halo = m.createRadialGradient(64, 64, 22, 64, 64, 64);
+    halo.addColorStop(0, "rgba(205,218,242,0.6)");
+    halo.addColorStop(0.5, "rgba(170,190,225,0.18)");
     halo.addColorStop(1, "rgba(150,175,220,0)");
     m.fillStyle = halo;
     m.fillRect(0, 0, 128, 128);
-    m.globalCompositeOperation = "source-over";
+    // Bright, near-full moon disc — reads unmistakably as the moon rather than
+    // a thin crescent that hides among the stars.
+    m.fillStyle = "#e9f0fc";
+    m.beginPath();
+    m.arc(64, 64, 42, 0, Math.PI * 2);
+    m.fill();
+    // Gentle terminator shading + craters, clipped inside the disc
+    m.save();
+    m.beginPath();
+    m.arc(64, 64, 42, 0, Math.PI * 2);
+    m.clip();
+    const term = m.createRadialGradient(44, 80, 8, 50, 72, 72);
+    term.addColorStop(0, "rgba(108,128,170,0.5)");
+    term.addColorStop(1, "rgba(108,128,170,0)");
+    m.fillStyle = term;
+    m.fillRect(0, 0, 128, 128);
     m.fillStyle = "rgba(150,165,195,0.5)";
-    m.beginPath(); m.arc(78, 52, 4, 0, Math.PI * 2); m.fill();
-    m.beginPath(); m.arc(84, 72, 3, 0, Math.PI * 2); m.fill();
-    m.beginPath(); m.arc(72, 86, 2.5, 0, Math.PI * 2); m.fill();
+    m.beginPath(); m.arc(74, 52, 4.5, 0, Math.PI * 2); m.fill();
+    m.beginPath(); m.arc(82, 70, 3.5, 0, Math.PI * 2); m.fill();
+    m.beginPath(); m.arc(60, 76, 3, 0, Math.PI * 2); m.fill();
+    m.beginPath(); m.arc(70, 86, 2.5, 0, Math.PI * 2); m.fill();
+    m.restore();
     const t = new THREE.CanvasTexture(c);
     t.colorSpace = THREE.SRGBColorSpace;
     return t;
@@ -175,7 +188,7 @@ function Moon({ progressRef }: { progressRef: React.MutableRefObject<number> }) 
     // Hung high and to the right, inside the sky dome and clear of the monument
     // — sits squarely in frame once the camera settles, the way the source file
     // frames its moon behind the pyramid.
-    <sprite position={[46, 60, -190]} scale={[44, 44, 1]}>
+    <sprite position={[-52, 50, -170]} scale={[46, 46, 1]} renderOrder={1}>
       <spriteMaterial
         ref={mat}
         map={texture}
@@ -197,7 +210,7 @@ function Moon({ progressRef }: { progressRef: React.MutableRefObject<number> }) 
    between sand grain, dunes and stone is kept true to the file. */
 function Desert({ progressRef }: { progressRef: React.MutableRefObject<number> }) {
   const group = useRef<THREE.Group>(null);
-  const sand = useMemo(() => makeDesertSandTextures(96), []);
+  const sand = useMemo(() => makeDesertSandTextures(40), []);
 
   const groundGeo = useMemo(() => {
     const g = new THREE.PlaneGeometry(420, 420, 120, 120);
@@ -244,11 +257,11 @@ function Desert({ progressRef }: { progressRef: React.MutableRefObject<number> }
 
   return (
     <group ref={group} position={[0, GROUND_Y, -92]} scale={PY_SCALE}>
-      <mesh geometry={groundGeo} receiveShadow>
+      <mesh geometry={groundGeo}>
         <meshStandardMaterial
           map={sand.map}
           bumpMap={sand.bump}
-          bumpScale={0.06}
+          bumpScale={0.015}
           roughness={1}
           metalness={0}
           transparent
@@ -385,11 +398,8 @@ function Pyramid({ progressRef }: { progressRef: React.MutableRefObject<number> 
     <group ref={group} position={[0, -38, -92]}>
       {/* design units → this scene's scale, dropped so the base sits on the floor */}
       <group scale={PY_SCALE} position={[0, -(DES_H * PY_SCALE) / 2, 0]}>
-        {/* body — the design's stone map, colours kept exactly as the file.
-            Casts onto the sand but does not receive its own shadow: over this
-            scene's large, scaled-up shadow map that self-shadow only speckles
-            the stone dark. */}
-        <mesh geometry={bodyGeo} castShadow>
+        {/* body — the design's stone map, colours kept exactly as the file */}
+        <mesh geometry={bodyGeo}>
           <meshStandardMaterial
             map={stone.map}
             bumpMap={stone.bump}
@@ -423,7 +433,7 @@ function Pyramid({ progressRef }: { progressRef: React.MutableRefObject<number> 
 
         {/* collapsed casing stones + rubble */}
         {rubble.map((r, i) => (
-          <mesh key={i} position={r.pos} rotation={r.rot} castShadow>
+          <mesh key={i} position={r.pos} rotation={r.rot}>
             {r.box ? (
               <boxGeometry args={r.dims} />
             ) : (
@@ -504,7 +514,9 @@ function Rig({
   allowPointer: boolean;
 }) {
   const { camera, scene } = useThree();
-  const fog = useMemo(() => new THREE.FogExp2(0x0a1020, 0.006), []);
+  // Horizon-navy haze (not near-black): the sand fogs into a lit dusk horizon
+  // so the floor reads as ground running to the skyline, never a void.
+  const fog = useMemo(() => new THREE.FogExp2(0x1a2740, 0.006), []);
 
   useEffect(() => {
     scene.fog = fog;
@@ -525,9 +537,10 @@ function Rig({
     const closeIn = easeInOut(band(p, 0.82, 1));
 
     // Held well back so the whole monument sits in frame with sky and moon
-    // around it, rather than filling the view.
-    const z = lerp(14, -4.5, intoMap) + lerp(0, -25, toPyramid);
-    const y = lerp(0, 1.2, intoMap) + lerp(0, -1.6, toPyramid) + lerp(0, 4, closeIn);
+    // around it, rather than filling the view. Rises a touch on the settle so
+    // we look very slightly down the pyramid onto a broad, solid apron of sand.
+    const z = lerp(14, -4.5, intoMap) + lerp(0, -15, toPyramid);
+    const y = lerp(0, 1.2, intoMap) + lerp(0, -1.6, toPyramid) + lerp(0, 5, closeIn);
 
     // Parallax: a small, damped drift so the world has depth under the cursor,
     // eased out as it settles on the monument.
@@ -542,10 +555,12 @@ function Rig({
     // Cold haze thickens across the desert, but kept light so the monument
     // itself stays crisp (the source file keeps the pyramid clear of fog) while
     // the far dune horizon still dissolves away.
-    fog.density = lerp(0.0016, 0.0045, band(p, 0.35, 0.8));
+    fog.density = lerp(0.0016, 0.0032, band(p, 0.35, 0.8));
 
-    // Aim rises from the desert floor to the monument's middle as it stands up.
-    const lookY = lerp(lerp(0, 6, toPyramid), 12, closeIn);
+    // Settle the aim near the pyramid's lower body rather than up its face, so
+    // the view is roughly level and the sand apron fills the bottom of frame as
+    // solid ground the monument plainly stands on.
+    const lookY = lerp(lerp(0, 4, toPyramid), 6, closeIn);
     camera.lookAt(0, lookY, -92);
   });
 
@@ -580,9 +595,8 @@ export default function JourneyScene({
   return (
     <Canvas
       dpr={[1, isHigh ? 1.85 : 1.3]}
-      camera={{ position: [0, 0, 14], fov: 52, near: 0.1, far: 400 }}
+      camera={{ position: [0, 0, 14], fov: 54, near: 0.1, far: 400 }}
       gl={{ antialias: isHigh, alpha: true, powerPreference: "high-performance" }}
-      shadows
       onCreated={({ gl }) => {
         gl.setClearColor(0x000000, 0);
         // Pinned explicitly: defaults differ across three versions and GPUs,
@@ -598,26 +612,17 @@ export default function JourneyScene({
           lights its pyramid (dramatic, but the camera-facing face falls to black
           in our wider shot), so the moon key is brought round to the upper-right
           front — the faces we actually see catch the moonlight and read as pale
-          stone, while still casting the monument's shadow onto the sand. A soft
-          fill lifts the shadowed side, and the hemisphere gives an ambient bounce
-          so nothing crushes to pure black. */}
+          stone. A soft fill lifts the shadowed side, and the hemisphere gives an
+          ambient bounce so nothing crushes to pure black. (No cast shadows: over
+          this scene's huge, scaled-up ground the shadow map only crushed the
+          sand to a flat dark plate — the scattered casing stones ground the
+          monument instead.) */}
       <hemisphereLight args={["#243349", "#12100c", 0.5]} />
       <directionalLight
         position={[58, GROUND_Y + 134, -58]}
         target={keyTarget}
         intensity={1.35}
         color="#b7cbe8"
-        castShadow
-        shadow-mapSize-width={isHigh ? 2048 : 1024}
-        shadow-mapSize-height={isHigh ? 2048 : 1024}
-        shadow-camera-near={1}
-        shadow-camera-far={620}
-        shadow-camera-left={-110}
-        shadow-camera-right={110}
-        shadow-camera-top={110}
-        shadow-camera-bottom={-110}
-        shadow-bias={-0.0004}
-        shadow-normalBias={1.2}
       />
       <primitive object={keyTarget} position={[0, GROUND_Y + 4, -92]} />
       <directionalLight position={[-46, 40, 34]} intensity={0.45} color="#37507a" />
