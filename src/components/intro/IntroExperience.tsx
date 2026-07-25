@@ -8,7 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SealedDoor from "./SealedDoor";
 import { lockScroll, unlockScroll, scrollToTop } from "@/components/providers/SmoothScroll";
 import { useAudio } from "@/components/providers/AudioProvider";
-import { useIsMobile, useReducedMotion } from "@/hooks/useMediaQuery";
+import { useIsMobile, useIsCoarsePointer, useReducedMotion } from "@/hooks/useMediaQuery";
 
 const JourneyScene = dynamic(() => import("./JourneyScene"), { ssr: false });
 
@@ -44,6 +44,7 @@ export default function IntroExperience({
   const progressRef = useRef(0);
 
   const isMobile = useIsMobile();
+  const coarse = useIsCoarsePointer();
   const reduced = useReducedMotion();
   const { unlock } = useAudio();
 
@@ -54,11 +55,16 @@ export default function IntroExperience({
   }, [phase]);
 
   /**
-   * Anyone who has asked for reduced motion gets the door and nothing else —
-   * a scroll-driven camera push is exactly the kind of thing that triggers
-   * vestibular symptoms.
+   * The scroll-driven journey is skipped for two audiences, who both go straight
+   * from the door to the homepage:
+   *   • reduced-motion — a scroll-hijacking camera push is exactly what triggers
+   *     vestibular symptoms.
+   *   • touch devices — the journey rides a fixed, overflow-hidden overlay, and
+   *     mobile browsers won't chain a touch-drag out of that scroll container, so
+   *     the page froze on the first frame. Native scrolling through the sections
+   *     is the smooth, reliable path there.
    */
-  const skipJourney = reduced;
+  const skipJourney = reduced || coarse;
 
   const handleDoorOpened = useCallback(() => {
     unlock(); // the click on the seal is the gesture that permits audio
