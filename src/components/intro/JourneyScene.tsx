@@ -24,6 +24,11 @@ const band = (p: number, a: number, b: number) => clamp((p - a) / (b - a), 0, 1)
 const easeInOut = (t: number) =>
   t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
+/** 0 on wide/landscape screens, ramping to 1 as the frame turns tall/portrait.
+ *  Drives the phone-friendly framing: pull the camera back, widen the lens and
+ *  bring the moon in from the edge so the whole monument fits a narrow viewport. */
+const portraitFactor = (aspect: number) => clamp((1.35 - aspect) / 0.95, 0, 1);
+
 /* ── The parchment ── */
 function MapPlane({ progressRef }: { progressRef: React.MutableRefObject<number> }) {
   const mat = useRef<THREE.MeshBasicMaterial>(null);
@@ -41,6 +46,10 @@ function MapPlane({ progressRef }: { progressRef: React.MutableRefObject<number>
       mat.current.opacity = 1 - band(p, 0.4, 0.64);
     }
     if (mesh.current) {
+      // Once faded, drop it from the render entirely — otherwise the portrait
+      // settle camera pulls back in front of this plane and its depth write
+      // silently occludes the moon (which draws after it).
+      mesh.current.visible = (mat.current?.opacity ?? 0) > 0.002;
       // Fill the whole viewport like a chart laid flat on the table — sized to
       // *cover* the frame (never letterboxed), while keeping the chart's 1.9:1
       // aspect so the map is cropped at the edges rather than stretched. Sized
@@ -69,6 +78,7 @@ function MapPlane({ progressRef }: { progressRef: React.MutableRefObject<number>
         transparent
         toneMapped={false}
         side={THREE.DoubleSide}
+        depthWrite={false}
       />
     </mesh>
   );
@@ -139,6 +149,13 @@ function Sky({ progressRef }: { progressRef: React.MutableRefObject<number> }) {
    it and a few craters. Hung high and to the right, far behind the monument. */
 function Moon({ progressRef }: { progressRef: React.MutableRefObject<number> }) {
   const mat = useRef<THREE.SpriteMaterial>(null);
+  const { size } = useThree();
+  // On a narrow portrait frame the far-left moon falls off-screen, so draw it in
+  // toward centre and shrink it a touch as the viewport turns tall.
+  const port = portraitFactor(size.width / Math.max(1, size.height));
+  const moonX = lerp(-52, -18, port);
+  const moonY = lerp(50, 60, port);
+  const moonS = lerp(46, 40, port);
 
   const texture = useMemo(() => {
     const c = document.createElement("canvas");
@@ -188,7 +205,7 @@ function Moon({ progressRef }: { progressRef: React.MutableRefObject<number> }) 
     // Hung high and to the right, inside the sky dome and clear of the monument
     // — sits squarely in frame once the camera settles, the way the source file
     // frames its moon behind the pyramid.
-    <sprite position={[-52, 50, -170]} scale={[46, 46, 1]} renderOrder={1}>
+    <sprite position={[moonX, moonY, -170]} scale={[moonS, moonS, 1]} renderOrder={1} frustumCulled={false}>
       <spriteMaterial
         ref={mat}
         map={texture}
@@ -513,7 +530,7 @@ function Rig({
   pointerRef: React.MutableRefObject<{ x: number; y: number }>;
   allowPointer: boolean;
 }) {
-  const { camera, scene } = useThree();
+  const { camera, scene, size } = useThree();
   // Horizon-navy haze (not near-black): the sand fogs into a lit dusk horizon
   // so the floor reads as ground running to the skyline, never a void.
   const fog = useMemo(() => new THREE.FogExp2(0x1a2740, 0.006), []);
@@ -536,10 +553,21 @@ function Rig({
     const toPyramid = easeInOut(band(p, 0.5, 0.82));
     const closeIn = easeInOut(band(p, 0.82, 1));
 
+    // Portrait/mobile: a wide monument won't fit a tall frame at the desktop
+    // distance and lens, so pull further back and widen the field of view as the
+    // viewport turns tall. Landscape is untouched (port = 0).
+    const port = portraitFactor(size.width / Math.max(1, size.height));
+    const wantFov = 54 + port * 12;
+    const pcam = camera as THREE.PerspectiveCamera;
+    if (Math.abs(pcam.fov - wantFov) > 0.05) {
+      pcam.fov = wantFov;
+      pcam.updateProjectionMatrix();
+    }
+
     // Held well back so the whole monument sits in frame with sky and moon
     // around it, rather than filling the view. Rises a touch on the settle so
     // we look very slightly down the pyramid onto a broad, solid apron of sand.
-    const z = lerp(14, -4.5, intoMap) + lerp(0, -15, toPyramid);
+    const z = lerp(14, -4.5, intoMap) + lerp(0, -15 + port * 22, toPyramid);
     const y = lerp(0, 1.2, intoMap) + lerp(0, -1.6, toPyramid) + lerp(0, 5, closeIn);
 
     // Parallax: a small, damped drift so the world has depth under the cursor,
@@ -576,8 +604,8 @@ export default function JourneyScene({
 }) {
   const pointerRef = useRef({ x: 0, y: 0 });
   const isHigh = quality === "high";
-  // Aim for the moon key light's shadow — parked on the monument so its shadow
-  // camera frames the pyramid and the sand around its base.
+  // Aim point for the moon key light — parked on the monument so the light
+  // direction rakes across the visible faces.
   const keyTarget = useMemo(() => new THREE.Object3D(), []);
 
   useEffect(() => {
@@ -594,7 +622,11 @@ export default function JourneyScene({
 
   return (
     <Canvas
-      dpr={[1, isHigh ? 1.85 : 1.3]}
+      /* touch-action pan-y (and pointer-events none) so a finger drag over the
+         canvas scrolls the runway that drives the journey, instead of the r3f
+         canvas swallowing the gesture — that was the mobile freeze. */
+      style={{ touchAction: "pan-y", pointerEvents: "none" }}
+      dpr={[1, isHigh ? 1.85 : 1.2]}
       camera={{ position: [0, 0, 14], fov: 54, near: 0.1, far: 400 }}
       gl={{ antialias: isHigh, alpha: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {
@@ -632,7 +664,7 @@ export default function JourneyScene({
       <MapPlane progressRef={progressRef} />
       <Desert progressRef={progressRef} />
       <Pyramid progressRef={progressRef} />
-      <Motes count={isHigh ? 520 : 200} progressRef={progressRef} />
+      <Motes count={isHigh ? 520 : 120} progressRef={progressRef} />
       <Rig progressRef={progressRef} pointerRef={pointerRef} allowPointer={isHigh} />
     </Canvas>
   );

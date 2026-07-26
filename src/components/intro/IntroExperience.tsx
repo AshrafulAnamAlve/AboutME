@@ -8,7 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SealedDoor from "./SealedDoor";
 import { lockScroll, unlockScroll, scrollToTop } from "@/components/providers/SmoothScroll";
 import { useAudio } from "@/components/providers/AudioProvider";
-import { useIsMobile, useIsCoarsePointer, useReducedMotion } from "@/hooks/useMediaQuery";
+import { useIsMobile, useReducedMotion } from "@/hooks/useMediaQuery";
 
 const JourneyScene = dynamic(() => import("./JourneyScene"), { ssr: false });
 
@@ -44,7 +44,6 @@ export default function IntroExperience({
   const progressRef = useRef(0);
 
   const isMobile = useIsMobile();
-  const coarse = useIsCoarsePointer();
   const reduced = useReducedMotion();
   const { unlock } = useAudio();
 
@@ -55,16 +54,18 @@ export default function IntroExperience({
   }, [phase]);
 
   /**
-   * The scroll-driven journey is skipped for two audiences, who both go straight
-   * from the door to the homepage:
-   *   • reduced-motion — a scroll-hijacking camera push is exactly what triggers
-   *     vestibular symptoms.
-   *   • touch devices — the journey rides a fixed, overflow-hidden overlay, and
-   *     mobile browsers won't chain a touch-drag out of that scroll container, so
-   *     the page froze on the first frame. Native scrolling through the sections
-   *     is the smooth, reliable path there.
+   * The scroll-driven journey now plays on touch devices too. It rides a fixed
+   * overlay, and the freeze that had it disabled on mobile was the overlay + its
+   * r3f canvas swallowing the touch-drag (an r3f canvas defaults to
+   * `touch-action: none`). The overlay is now `pointer-events: none` during the
+   * journey and the canvas is given `touch-action: pan-y`, so the drag scrolls
+   * the runway underneath and drives the camera as it does on desktop.
+   *
+   * Only reduced-motion still skips it — a scroll-hijacking camera push is
+   * exactly what triggers vestibular symptoms — going straight from the door to
+   * the homepage with native scrolling.
    */
-  const skipJourney = reduced || coarse;
+  const skipJourney = reduced;
 
   const handleDoorOpened = useCallback(() => {
     unlock(); // the click on the seal is the gesture that permits audio
@@ -111,9 +112,10 @@ export default function IntroExperience({
         // The handoff happens deep inside the passage, not out in the desert —
         // fading any earlier would cut the entry through the doorway short.
         const fade = gsap.utils.clamp(0, 1, (self.progress - 0.955) / 0.045);
+        // Opacity only — the overlay stays `pointer-events: none` throughout so
+        // a touch-drag scrolls the runway rather than being swallowed here.
         if (overlayRef.current) {
           overlayRef.current.style.opacity = String(1 - fade);
-          overlayRef.current.style.pointerEvents = fade > 0.5 ? "none" : "auto";
         }
 
         const done = self.progress > 0.985;
@@ -173,14 +175,16 @@ export default function IntroExperience({
         {visible && (
           <motion.div
             key="intro-overlay"
+            /* pointer-events-none so touch-drags fall through to scroll the
+               runway; the door opts back in below to stay tappable. */
             ref={overlayRef}
-            className="fixed inset-0 z-[160] overflow-hidden bg-void-900"
+            className="pointer-events-none fixed inset-0 z-[160] overflow-hidden bg-void-900"
             exit={{ opacity: 0 }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Scenes 2–5 sit behind the door and are revealed as it opens */}
             {phase !== "door" && sceneOn && (
-              <div className="absolute inset-0">
+              <div className="pointer-events-none absolute inset-0">
                 <JourneyScene
                   progressRef={progressRef}
                   quality={isMobile ? "low" : "high"}
@@ -191,7 +195,7 @@ export default function IntroExperience({
             {/* Scene 1 — kept above the canvas so the map is revealed
                 through the widening gap as the leaves swing outward */}
             {doorMounted && (
-              <div className="absolute inset-0 z-10">
+              <div className="pointer-events-auto absolute inset-0 z-10">
                 <SealedDoor onOpened={handleDoorOpened} muted={false} />
               </div>
             )}
